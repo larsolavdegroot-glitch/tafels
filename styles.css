@@ -353,3 +353,35 @@ canvas {
   background: #34d399;
   color: #111;
 }
+
+/* small confetti pieces */
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 14px;
+  pointer-events: none;
+  opacity: 0.95;
+  transform-origin: center;
+  z-index: 2000;
+  animation: confetti-fall 1200ms linear forwards;
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1 }
+  100% { transform: translateY(110vh) rotate(720deg) scale(0.7); opacity: 0 }
+}
+
+/* subtle floating for block icons */
+.block-icon { animation: floaty 3s ease-in-out infinite }
+@keyframes floaty { 0%{ transform: translateY(0) }50%{ transform: translateY(-8px) }100%{ transform: translateY(0) } }
+
+/* improved buttons */
+.primary { transition: transform 0.12s ease, box-shadow 0.12s ease }
+.primary:active { transform: translateY(2px) }
+
+/* modal glass blur */
+.modal { backdrop-filter: blur(6px); }
+
+/* correct cell pulse */
+.raster-cell.correct { animation: pop 420ms ease-out }
+@keyframes pop { 0%{ transform: scale(0.9); } 60%{ transform: scale(1.06); } 100%{ transform: scale(1); } }

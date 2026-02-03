@@ -21,6 +21,22 @@ function createMatrix(w,h) {
   const m = []; while(h--) m.push(new Array(w).fill(0)); return m;
 }
 
+// small DOM confetti helper
+function spawnConfetti(count = 28) {
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = (50 + (Math.random() - 0.5) * 30) + 'vw';
+    el.style.background = ['#ff4757','#ff6b81','#1e90ff','#2ed573','#ffa502'][Math.floor(Math.random()*5)];
+    el.style.transform = `rotate(${Math.random()*360}deg)`;
+    el.style.top = (Math.random()*10) + 'vh';
+    el.style.width = (6 + Math.random()*10) + 'px';
+    el.style.height = (8 + Math.random()*12) + 'px';
+    document.body.appendChild(el);
+    setTimeout(()=> el.remove(), 1600 + Math.random()*600);
+  }
+}
+
 function createPiece(t) {
   const map = {T:[[0,1,0],[1,1,1],[0,0,0]],O:[[2,2],[2,2]],L:[[0,0,3],[3,3,3],[0,0,0]],J:[[4,0,0],[4,4,4],[0,0,0]],I:[[0,5,0,0],[0,5,0,0],[0,5,0,0],[0,5,0,0]],S:[[0,6,6],[6,6,0],[0,0,0]],Z:[[7,7,0],[0,7,7],[0,0,0]]};
   return map[t];
@@ -152,6 +168,8 @@ document.getElementById('q-submit').addEventListener('click', () => {
   document.getElementById('question-modal').hidden = true;
   if(answer === correct) {
     tetrisScore += lines * 200;
+    // celebratory confetti
+    spawnConfetti();
     tetrisLevel = Math.min(10, tetrisLevel + Math.floor(lines/1));
     tetrisDropInterval = Math.max(100, tetrisDropInterval - (tetrisLevel*20));
   } else {

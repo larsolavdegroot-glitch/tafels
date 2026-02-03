@@ -4,6 +4,21 @@ let rasterQuestions = [];
 
 function rand(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
 
+// simple confetti helper
+function spawnConfetti(count = 20) {
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = (30 + Math.random()*40) + 'vw';
+    el.style.background = ['#ff4757','#ff6b81','#1e90ff','#2ed573','#ffa502'][Math.floor(Math.random()*5)];
+    el.style.top = (Math.random()*20) + 'vh';
+    el.style.width = (6 + Math.random()*8) + 'px';
+    el.style.height = (8 + Math.random()*10) + 'px';
+    document.body.appendChild(el);
+    setTimeout(()=> el.remove(), 1400 + Math.random()*600);
+  }
+}
+
 function generateRasterQuestions() {
   rasterQuestions = [];
   for(let i=0;i<rasterTotal;i++) {
@@ -45,6 +60,7 @@ function displayRasterQuestion() {
         rasterCorrect += 1;
         document.getElementById('ra-score').textContent = rasterScore;
         document.getElementById('ra-correct').textContent = `${rasterCorrect}/${rasterTotal}`;
+        spawnConfetti();
         setTimeout(() => { rasterCurrent++; displayRasterQuestion(); }, 500);
       } else {
         cell.classList.add('wrong');

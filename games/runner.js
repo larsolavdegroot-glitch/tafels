@@ -46,7 +46,20 @@ function runnerUpdate() {
   
   runnerGameId = requestAnimationFrame(runnerUpdate);
 }
-
+// small DOM confetti helper (shared simple version)
+function spawnConfetti(count = 22) {
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = (40 + Math.random()*20) + 'vw';
+    el.style.background = ['#ff4757','#ff6b81','#1e90ff','#2ed573','#ffa502'][Math.floor(Math.random()*5)];
+    el.style.top = (Math.random()*20) + 'vh';
+    el.style.width = (6 + Math.random()*8) + 'px';
+    el.style.height = (8 + Math.random()*10) + 'px';
+    document.body.appendChild(el);
+    setTimeout(()=> el.remove(), 1400 + Math.random()*600);
+  }
+}
 function runnerShowQuestion() {
   const a = rand(2,9), b = rand(2,9), correct = a*b;
   runnerCurrentAnswer = correct;
@@ -62,6 +75,7 @@ function runnerShowQuestion() {
       if(c === correct) {
         runnerScore += 50;
         document.getElementById('r-score').textContent = runnerScore;
+          spawnConfetti();
       }
       document.getElementById('r-question-modal').hidden = true;
       runnerGameRunning = true;
