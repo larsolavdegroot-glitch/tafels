@@ -1,18 +1,4 @@
-/* === GAME MANAGER & SHARED LOGIC === */
-let currentGame = 'game1';
-document.querySelectorAll('.game-card').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.game-card').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentGame = btn.dataset.game;
-    document.querySelectorAll('.game-pane').forEach(pane => pane.hidden = true);
-    document.getElementById(currentGame).hidden = false;
-  });
-});
-
-function rand(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
-
-/* === GAME 1: TETRIS WITH MATH QUESTIONS === */
+/* TETRIS GAME - Standalone */
 const tetrisCanvas = document.getElementById('tetris');
 const nextCanvas = document.getElementById('next');
 const ctx = tetrisCanvas.getContext('2d');
@@ -64,6 +50,7 @@ function merge(a, p) {
     });
   });
 }
+
 function collide(a, p) {
   const m = p.matrix;
   for(let y=0;y<m.length;y++) {
@@ -196,7 +183,7 @@ function tetrisPauseLoop() { tetrisRunning=false; if(tetrisGameId) cancelAnimati
 function tetrisResumeLoop() { if(!tetrisRunning) { tetrisRunning=true; tetrisLastTime=0; tetrisGameId=requestAnimationFrame(tetrisUpdate); } }
 
 document.addEventListener('keydown',(e) => {
-  if(currentGame !== 'game1' || !tetrisRunning) return;
+  if(!tetrisRunning) return;
   if(e.key === 'ArrowLeft') tetrisPlayerMove(-1);
   if(e.key === 'ArrowRight') tetrisPlayerMove(1);
   if(e.key === 'ArrowDown') tetrisPlayerDrop();
@@ -210,158 +197,6 @@ document.getElementById('t-start').addEventListener('click', () => {
 });
 document.getElementById('t-pause').addEventListener('click', () => { if(tetrisRunning) tetrisPauseLoop(); else tetrisResumeLoop(); });
 
+function rand(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
+
 tetrisPlayerReset(); tetrisDraw(); tetrisDrawNext(); tetrisUpdateHUD();
-
-/* === GAME 2: RUNNER (SUBWAY SURFER STYLE) === */
-const runnerCanvas = document.getElementById('runner');
-const rctx = runnerCanvas.getContext('2d');
-runnerCanvas.width = 400;
-runnerCanvas.height = 400;
-
-let runnerPlayer = {x: 150, y: 300, w: 30, h: 40};
-let runnerObstacles = [];
-let runnerScore = 0, runnerDistance = 0, runnerSpeed = 2, runnerGameRunning = false, runnerGameId = null;
-let runnerQuestionActive = false, runnerCurrentAnswer = 0, runnerChoices = [];
-
-function runnerUpdate() {
-  if(!runnerGameRunning) return;
-  rctx.fillStyle = '#1a1a2e'; rctx.fillRect(0,0,runnerCanvas.width,runnerCanvas.height);
-  
-  // Draw road
-  rctx.fillStyle = '#2d4059'; rctx.fillRect(0, 200, runnerCanvas.width, 200);
-  rctx.fillStyle = '#444'; rctx.strokeStyle = '#fff'; rctx.lineWidth = 2;
-  for(let i=0;i<5;i++) rctx.strokeRect(80 + i*80, runnerDistance%50, 60, 30);
-  
-  // Player
-  rctx.fillStyle = '#ff6b6b'; rctx.fillRect(runnerPlayer.x, runnerPlayer.y, runnerPlayer.w, runnerPlayer.h);
-  
-  // Obstacles
-  runnerObstacles.forEach(obs => {
-    obs.y += runnerSpeed;
-    rctx.fillStyle = obs.type==='tree' ? '#27ae60' : '#8b4513';
-    rctx.fillRect(obs.x, obs.y, obs.w, obs.h);
-    if(obs.y > runnerCanvas.height) runnerObstacles.shift();
-  });
-  
-  // Spawn obstacles
-  if(rand(0,100) < 3) runnerObstacles.push({x: rand(80, 320), y: -40, w: 30, h: 40, type: rand(0,2)?'tree':'rock'});
-  
-  // Collision
-  runnerObstacles.forEach(obs => {
-    if(runnerPlayer.x < obs.x + obs.w && runnerPlayer.x + runnerPlayer.w > obs.x && runnerPlayer.y < obs.y + obs.h && runnerPlayer.y + runnerPlayer.h > obs.y) {
-      runnerQuestionActive = true; runnerGameRunning = false;
-      runnerShowQuestion();
-    }
-  });
-  
-  runnerDistance += 1;
-  document.getElementById('r-score').textContent = runnerScore;
-  document.getElementById('r-dist').textContent = Math.floor(runnerDistance/10);
-  
-  runnerGameId = requestAnimationFrame(runnerUpdate);
-}
-
-function runnerShowQuestion() {
-  const a = rand(2,9), b = rand(2,9), correct = a*b;
-  runnerCurrentAnswer = correct;
-  document.getElementById('r-q-text').textContent = `${a} × ${b} = ?`;
-  
-  runnerChoices = [correct, rand(1,144), rand(1,144)].sort(() => Math.random()-0.5);
-  const choicesDiv = document.querySelector('.r-choices');
-  choicesDiv.innerHTML = '';
-  runnerChoices.forEach(c => {
-    const btn = document.createElement('button');
-    btn.textContent = c;
-    btn.addEventListener('click', () => {
-      if(c === correct) {
-        runnerScore += 50;
-        document.getElementById('r-score').textContent = runnerScore;
-      }
-      document.getElementById('r-question-modal').hidden = true;
-      runnerGameRunning = true;
-      runnerUpdate();
-    });
-    choicesDiv.appendChild(btn);
-  });
-  document.getElementById('r-question-modal').hidden = false;
-}
-
-document.addEventListener('keydown', (e) => {
-  if(currentGame !== 'game2' || !runnerGameRunning) return;
-  if(e.key === 'ArrowLeft') runnerPlayer.x = Math.max(80, runnerPlayer.x - 20);
-  if(e.key === 'ArrowRight') runnerPlayer.x = Math.min(runnerCanvas.width - 110, runnerPlayer.x + 20);
-});
-
-document.getElementById('r-start').addEventListener('click', () => {
-  runnerPlayer = {x: 150, y: 300, w: 30, h: 40};
-  runnerObstacles = [];
-  runnerScore = 0; runnerDistance = 0; runnerSpeed = 2;
-  runnerGameRunning = true;
-  runnerUpdate();
-});
-
-document.getElementById('r-q-skip').addEventListener('click', () => {
-  document.getElementById('r-question-modal').hidden = true;
-  runnerGameRunning = true;
-  runnerUpdate();
-});
-
-/* === GAME 3: RASTER (MULTIPLICATION TABLE GRID) === */
-let rasterScore = 0, rasterCorrect = 0, rasterTotal = 10, rasterCurrent = 0;
-let rasterQuestions = [];
-
-function generateRasterQuestions() {
-  rasterQuestions = [];
-  for(let i=0;i<rasterTotal;i++) {
-    const a = rand(2,12), b = rand(2,12);
-    rasterQuestions.push({a,b,answer: a*b});
-  }
-}
-
-function displayRasterQuestion() {
-  if(rasterCurrent >= rasterTotal) {
-    alert(`Klaar! Score: ${rasterScore}`);
-    rasterScore = 0; rasterCorrect = 0; rasterCurrent = 0;
-    return;
-  }
-  const q = rasterQuestions[rasterCurrent];
-  document.getElementById('ra-answer-text').textContent = q.answer;
-  
-  // Create grid with random table values
-  const gridDiv = document.getElementById('raster-grid');
-  gridDiv.innerHTML = '';
-  const grid = [];
-  for(let i=0;i<25;i++) {
-    if(i === rand(0,24)) {
-      grid.push(q.answer);
-    } else {
-      grid.push(rand(2,12) * rand(2,12));
-    }
-  }
-  grid.sort(() => Math.random()-0.5);
-  
-  grid.forEach((val, idx) => {
-    const cell = document.createElement('div');
-    cell.className = 'raster-cell';
-    cell.textContent = val;
-    cell.addEventListener('click', () => {
-      if(val === q.answer) {
-        cell.classList.add('correct');
-        rasterScore += 10;
-        rasterCorrect += 1;
-        setTimeout(() => { rasterCurrent++; displayRasterQuestion(); }, 500);
-      } else {
-        cell.classList.add('wrong');
-      }
-    });
-    gridDiv.appendChild(cell);
-  });
-}
-
-document.getElementById('ra-start').addEventListener('click', () => {
-  rasterScore = 0; rasterCorrect = 0; rasterCurrent = 0;
-  generateRasterQuestions();
-  document.getElementById('ra-score').textContent = rasterScore;
-  document.getElementById('ra-correct').textContent = `${rasterCorrect}/${rasterTotal}`;
-  displayRasterQuestion();
-});

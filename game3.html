@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TafelQuest — Raster</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="game-header">
+        <button class="back-btn" onclick="history.back()">← Terug</button>
+        <h1 class="game-title">🧮 Raster</h1>
+        <div></div>
+      </header>
+
+      <main>
+        <div class="hud">
+          <div class="hud-left">
+            <div class="stat">Score: <span id="ra-score">0</span></div>
+            <div class="stat">Correct: <span id="ra-correct">0</span>/10</div>
+          </div>
+          <div class="hud-right">
+            <button id="ra-start" class="primary">Start</button>
+          </div>
+        </div>
+
+        <div class="raster-area">
+          <div class="raster-question">
+            <h3>Wat is het antwoord?</h3>
+            <p id="ra-answer-text">42</p>
+          </div>
+          <div class="raster-grid" id="raster-grid"></div>
+        </div>
+        <p class="raster-hint">Tik op het juiste tafelproduct in het raster.</p>
+      </main>
+    </div>
+
+    <script src="games/raster.js" defer></script>
+  </body>
+</html>

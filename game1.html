@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TafelQuest — Tetris</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="game-header">
+        <button class="back-btn" onclick="history.back()">← Terug</button>
+        <h1 class="game-title">🎮 Tetris</h1>
+        <div></div>
+      </header>
+
+      <main>
+        <div class="hud">
+          <div class="hud-left">
+            <div class="stat">Score: <span id="t-score">0</span></div>
+            <div class="stat">Level: <span id="t-level">1</span></div>
+          </div>
+          <div class="hud-right">
+            <button id="t-start" class="primary">Start</button>
+            <button id="t-pause" class="secondary">Pause</button>
+          </div>
+        </div>
+
+        <div class="tetris-wrap">
+          <canvas id="tetris" width="220" height="440"></canvas>
+          <aside class="next-wrap">
+            <h3>Next</h3>
+            <canvas id="next" width="60" height="60"></canvas>
+          </aside>
+        </div>
+
+        <div id="question-modal" class="modal" hidden>
+          <div class="modal-card">
+            <h3>Reken som!</h3>
+            <p id="q-text">8 × 7 = ?</p>
+            <input id="q-answer" type="number" />
+            <div class="modal-actions">
+              <button id="q-submit" class="primary">Check</button>
+              <button id="q-skip" class="secondary">Sla over</button>
+            </div>
+            <p style="font-size:0.85rem;margin:8px 0 0;opacity:0.8;">Goed antwoord geeft punten. Fout versnelt vallen.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="games/tetris.js" defer></script>
+  </body>
+</html>
