@@ -3,120 +3,45 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TafelQuest - oefenen met tafels</title>
+    <title>TafelQuest — Games</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
+  <body class="home">
     <div class="app">
-      <header class="site-header ig-style">
-        <div class="brand">
-          <div class="avatar">🎯</div>
-          <div>
-            <h1>TafelQuest — Starter</h1>
-            <p class="sub">Kies een game en oefen tafels op een speelse manier</p>
-          </div>
-        </div>
-        <nav class="games-nav">
-          <button class="game-card active" data-game="game1">🎮 Tetris</button>
-          <button class="game-card" data-game="game2">🏃 Runner</button>
-          <button class="game-card" data-game="game3">🧮 Raster</button>
-        </nav>
+      <header class="home-header">
+        <h1>🎯 TafelQuest</h1>
+        <p>Kies een game</p>
       </header>
 
-      <main>
-        <section id="starter" class="starter">
-          <h2>Begin hier</h2>
-          <p>Klik op één van de games hierboven om te starten. We beginnen met Game 1 (Tetris).</p>
-        </section>
-
-        <section id="game-area" class="game-area">
-          <!-- Game 1: Tetris canvas and HUD -->
-          <div id="game1" class="game-pane">
-            <div class="hud">
-              <div class="hud-left">
-                <div class="stat">Score: <span id="t-score">0</span></div>
-                <div class="stat">Level: <span id="t-level">1</span></div>
-              </div>
-              <div class="hud-right">
-                <button id="t-start" class="primary">Start</button>
-                <button id="t-pause" class="secondary">Pause</button>
-              </div>
-            </div>
-
-            <div class="tetris-wrap">
-              <canvas id="tetris" width="220" height="440"></canvas>
-              <aside class="next-wrap">
-                <h3>Next</h3>
-                <canvas id="next" width="60" height="60"></canvas>
-              </aside>
-            </div>
-
-            <div id="question-modal" class="modal" hidden>
-              <div class="modal-card">
-                <h3>Reken som!</h3>
-                <p id="q-text">8 × 7 = ?</p>
-                <input id="q-answer" type="number" />
-                <div class="modal-actions">
-                  <button id="q-submit" class="primary">Check</button>
-                  <button id="q-skip" class="secondary">Sla over</button>
-                </div>
-                <p class="hint">Goed antwoord geeft punten. Fout versnelt vallen.</p>
-              </div>
-            </div>
+      <main class="home-grid">
+        <a href="game1.html" class="game-block tetris">
+          <div class="block-content">
+            <div class="block-icon">🎮</div>
+            <h2>Tetris</h2>
+            <p>Blokken stapelen, sommen oplossen</p>
           </div>
+        </a>
 
-          <!-- Game 2: Runner -->
-          <div id="game2" class="game-pane" hidden>
-            <div class="hud">
-              <div class="hud-left">
-                <div class="stat">Score: <span id="r-score">0</span></div>
-                <div class="stat">Distance: <span id="r-dist">0</span>m</div>
-              </div>
-              <div class="hud-right">
-                <button id="r-start" class="primary">Start</button>
-              </div>
-            </div>
-            <canvas id="runner" width="400" height="400"></canvas>
-            <div id="r-question-modal" class="modal" hidden>
-              <div class="modal-card">
-                <h3>Vraag!</h3>
-                <p id="r-q-text">Wat is 6 × 7?</p>
-                <div class="choice-grid r-choices"></div>
-                <div class="modal-actions">
-                  <button id="r-q-skip" class="secondary">Sla over</button>
-                </div>
-              </div>
-            </div>
+        <a href="game2.html" class="game-block runner">
+          <div class="block-content">
+            <div class="block-icon">🏃</div>
+            <h2>Runner</h2>
+            <p>Sprint, wezig hindernissen uit</p>
           </div>
+        </a>
 
-          <!-- Game 3: Raster -->
-          <div id="game3" class="game-pane" hidden>
-            <div class="hud">
-              <div class="hud-left">
-                <div class="stat">Score: <span id="ra-score">0</span></div>
-                <div class="stat">Correct: <span id="ra-correct">0</span>/10</div>
-              </div>
-              <div class="hud-right">
-                <button id="ra-start" class="primary">Start</button>
-              </div>
-            </div>
-            <div class="raster-area">
-              <div class="raster-question">
-                <h3>Wat is het antwoord?</h3>
-                <p id="ra-answer-text">42</p>
-              </div>
-              <div class="raster-grid" id="raster-grid"></div>
-            </div>
-            <p class="raster-hint">Tik op het juiste tafelproduct in het raster.</p>
+        <a href="game3.html" class="game-block raster">
+          <div class="block-content">
+            <div class="block-icon">🧮</div>
+            <h2>Raster</h2>
+            <p>Vind het getal in het raster</p>
           </div>
-        </section>
+        </a>
       </main>
 
-      <footer class="site-footer ig-style">
-        <p>Maak het speelvol — veel succes!</p>
+      <footer class="home-footer">
+        <p>Veel speelplezier! 🚀</p>
       </footer>
     </div>
-
-    <script src="script.js" defer></script>
   </body>
 </html>
