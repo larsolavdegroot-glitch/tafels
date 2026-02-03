@@ -49,8 +49,8 @@
 
 body {
   margin: 0;
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-  background: radial-gradient(circle at top, #1e293b 0%, #0f172a 45%, #020617 100%);
+  font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
   color: var(--text);
   min-height: 100vh;
 }
@@ -60,6 +60,27 @@ body {
   margin: 0 auto;
   padding: 32px 24px 48px;
 }
+
+/* Instagram-like header */
+.site-header.ig-style {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  padding: 18px;
+  border-radius: 14px;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.brand { display:flex; gap:12px; align-items:center }
+.avatar { font-size:28px; width:48px; height:48px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.12); border-radius:12px }
+.sub { margin:0; opacity:0.9; font-size:0.95rem }
+
+.games-nav { display:flex; gap:8px }
+.game-card { background:rgba(255,255,255,0.06); color:white; padding:10px 14px; border-radius:12px; border:none; cursor:pointer }
+.game-card.active { box-shadow:0 10px 30px rgba(0,0,0,0.25); transform:translateY(-4px) }
 
 .site-header {
   display: grid;
@@ -111,11 +132,11 @@ main {
 }
 
 section {
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  padding: 24px;
-  border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.35);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
 }
 
 h2 {
@@ -188,15 +209,15 @@ input {
 }
 
 .primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  background: linear-gradient(90deg, rgba(255,255,255,0.15), rgba(255,255,255,0.06));
   border: none;
-  color: #020617;
+  color: white;
   font-weight: 700;
-  border-radius: 12px;
-  padding: 12px 20px;
+  border-radius: 10px;
+  padding: 8px 14px;
   cursor: pointer;
-  font-size: 1rem;
-  box-shadow: 0 10px 20px rgba(34, 211, 238, 0.3);
+  font-size: 0.95rem;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
 }
 
 .primary:hover {
@@ -344,6 +365,44 @@ input {
   padding-left: 20px;
   color: var(--muted);
 }
+
+/* Game area styles */
+.game-area { display: grid; gap:12px }
+.game-pane { padding:14px }
+.hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px }
+.stat { color:white; font-weight:700; margin-right:12px }
+.tetris-wrap { display:flex; gap:12px; align-items:flex-start }
+canvas { background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.85)); border-radius:6px; box-shadow:inset 0 6px 18px rgba(0,0,0,0.6) }
+.next-wrap { color:white; font-size:0.9rem }
+
+/* Runner canvas */
+#runner { width:100%; max-width:400px }
+
+/* Raster area */
+.raster-area { display:grid; gap:12px; color:white; margin-bottom:12px }
+.raster-question { text-align:center; background:rgba(255,255,255,0.05); padding:12px; border-radius:8px }
+.raster-question h3 { margin:0 0 6px; font-size:0.95rem }
+.raster-question p { margin:0; font-size:1.8rem; font-weight:700 }
+.raster-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px }
+.raster-cell { background:linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.1); color:white; padding:10px; border-radius:6px; text-align:center; cursor:pointer; font-weight:600; transition:all 0.2s }
+.raster-cell:hover { transform:translateY(-3px); box-shadow:0 8px 16px rgba(0,0,0,0.3) }
+.raster-cell.correct { background:linear-gradient(135deg, #34d399, #10b981); box-shadow:0 10px 24px rgba(52,211,153,0.4) }
+.raster-cell.wrong { background:#fb7185; opacity:0.6 }
+.raster-hint { color:rgba(255,255,255,0.7); font-size:0.9rem; text-align:center; margin:8px 0 0 }
+
+.modal { position:fixed; left:0; right:0; top:0; bottom:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.6) }
+.modal-card { background:linear-gradient(180deg, #fff, #fff); color:#111; padding:18px; border-radius:12px; width:320px; box-shadow:0 20px 40px rgba(0,0,0,0.4) }
+.modal-card h3 { margin-top:0 }
+.modal-actions { display:flex; gap:8px; margin-top:8px }
+.secondary { background:transparent; border:1px solid rgba(255,255,255,0.12); color:white; padding:8px 12px; border-radius:10px }
+
+/* Choice grid for runner and other modals */
+.choice-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin:12px 0 }
+.choice-grid button { background:linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); color:white; padding:10px; border:1px solid rgba(255,255,255,0.15); border-radius:8px; cursor:pointer; font-weight:600; transition:all 0.2s }
+.choice-grid button:hover { transform:translateY(-2px); box-shadow:0 6px 12px rgba(0,0,0,0.2) }
+.choice-grid button.selected { background:#34d399; color:#111 }
+
+.site-footer.ig-style { margin-top:18px; color:white; text-align:center }
 
 .site-footer {
   margin-top: 32px;
