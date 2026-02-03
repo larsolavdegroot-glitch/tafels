@@ -385,3 +385,7 @@ canvas {
 /* correct cell pulse */
 .raster-cell.correct { animation: pop 420ms ease-out }
 @keyframes pop { 0%{ transform: scale(0.9); } 60%{ transform: scale(1.06); } 100%{ transform: scale(1); } }
+
+/* Make tetris canvas responsive and fit available space */
+#tetris { max-width: 520px; width: 100%; height: auto; display: block; margin: 0 auto; image-rendering: pixelated }
+#next { max-width: 160px; width: 100%; height: auto; display: block; margin: 8px auto; image-rendering: pixelated }

@@ -211,10 +211,14 @@ document.addEventListener('keydown',(e) => {
 });
 
 document.getElementById('t-start').addEventListener('click', () => {
-  tetrisArena = createMatrix(COLS, ROWS); tetrisScore=0; tetrisLevel=1; tetrisDropInterval=800; tetrisNext=null; tetrisPlayerReset(); tetrisStartLoop(); tetrisUpdateHUD();
+  // ensure question modal is hidden when starting
+  tetrisArena = createMatrix(COLS, ROWS); tetrisScore=0; tetrisLevel=1; tetrisDropInterval=800; tetrisNext=null; document.getElementById('question-modal').hidden = true; tetrisPlayerReset(); tetrisStartLoop(); tetrisUpdateHUD();
 });
 document.getElementById('t-pause').addEventListener('click', () => { if(tetrisRunning) tetrisPauseLoop(); else tetrisResumeLoop(); });
 
 function rand(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
 
 tetrisPlayerReset(); tetrisDraw(); tetrisDrawNext(); tetrisUpdateHUD();
+
+// ensure modals are hidden on initial load
+if(document.getElementById('question-modal')) document.getElementById('question-modal').hidden = true;

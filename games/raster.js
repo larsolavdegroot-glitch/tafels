@@ -34,7 +34,8 @@ function displayRasterQuestion() {
     return;
   }
   const q = rasterQuestions[rasterCurrent];
-  document.getElementById('ra-answer-text').textContent = q.answer;
+  // show the multiplication question, not the raw answer
+  document.getElementById('ra-answer-text').textContent = `${q.a} × ${q.b}`;
   
   // Create grid with random table values
   const gridDiv = document.getElementById('raster-grid');

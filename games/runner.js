@@ -96,6 +96,8 @@ document.getElementById('r-start').addEventListener('click', () => {
   runnerPlayer = {x: 150, y: 300, w: 30, h: 40};
   runnerObstacles = [];
   runnerScore = 0; runnerDistance = 0; runnerSpeed = 2;
+  // hide any question modal when starting
+  document.getElementById('r-question-modal').hidden = true;
   runnerGameRunning = true;
   runnerUpdate();
 });
