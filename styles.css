@@ -397,6 +397,8 @@ choice-grid button.selected {
 /* Make tetris canvas responsive and fit available space */
 #tetris { max-width: 520px; width: 100%; height: auto; display: block; margin: 0 auto; image-rendering: pixelated }
 #next { max-width: 160px; width: 100%; height: auto; display: block; margin: 8px auto; image-rendering: pixelated }
+/* runner canvas sizing */
+#runner { max-width: 520px; width: 100%; height: auto; display: block; margin: 0 auto; image-rendering: pixelated }
 
 @media (max-width: 720px) {
   .tetris-wrap { flex-direction: column; align-items: center; padding: 8px; }

@@ -65,6 +65,7 @@ function runnerShowQuestion() {
   runnerCurrentAnswer = correct;
   document.getElementById('r-q-text').textContent = `${a} × ${b} = ?`;
   
+  // populate multiple-choice buttons
   runnerChoices = [correct, rand(1,144), rand(1,144)].sort(() => Math.random()-0.5);
   const choicesDiv = document.querySelector('.r-choices');
   choicesDiv.innerHTML = '';
@@ -72,18 +73,41 @@ function runnerShowQuestion() {
     const btn = document.createElement('button');
     btn.textContent = c;
     btn.addEventListener('click', () => {
-      if(c === correct) {
-        runnerScore += 50;
-        document.getElementById('r-score').textContent = runnerScore;
-          spawnConfetti();
-      }
-      document.getElementById('r-question-modal').hidden = true;
-      runnerGameRunning = true;
-      runnerUpdate();
+      handleRunnerAnswer(Number(c));
     });
     choicesDiv.appendChild(btn);
   });
+
+  // setup numeric input submit
+  const input = document.getElementById('r-q-answer');
+  if (input) {
+    input.value = '';
+    input.placeholder = 'Typ je antwoord';
+    setTimeout(() => input.focus(), 50);
+    input.onkeydown = (e) => { if (e.key === 'Enter') { handleRunnerAnswer(Number(input.value)); } };
+  }
+
+  const submitBtn = document.getElementById('r-q-submit');
+  if (submitBtn) {
+    submitBtn.onclick = () => {
+      const val = Number(document.getElementById('r-q-answer').value);
+      handleRunnerAnswer(val);
+    };
+  }
+
   document.getElementById('r-question-modal').hidden = false;
+}
+
+function handleRunnerAnswer(value) {
+  const correct = runnerCurrentAnswer;
+  if (Number(value) === Number(correct)) {
+    runnerScore += 50;
+    document.getElementById('r-score').textContent = runnerScore;
+    try { spawnConfetti(); } catch (e) {}
+  }
+  document.getElementById('r-question-modal').hidden = true;
+  runnerGameRunning = true;
+  runnerUpdate();
 }
 
 document.addEventListener('keydown', (e) => {

@@ -37,17 +37,21 @@ function displayRasterQuestion() {
   // show the multiplication question, not the raw answer
   document.getElementById('ra-answer-text').textContent = `${q.a} × ${q.b}`;
   
-  // Create grid with random table values
+  // Create grid with random table values and ensure exactly one correct answer
   const gridDiv = document.getElementById('raster-grid');
   gridDiv.innerHTML = '';
   const grid = [];
+  const correctIndex = rand(0,25); // 0..24
   for(let i=0;i<25;i++) {
-    if(i === rand(0,24)) {
+    if(i === correctIndex) {
       grid.push(q.answer);
     } else {
-      grid.push(rand(2,12) * rand(2,12));
+      let val;
+      do { val = rand(2,12) * rand(2,12); } while (val === q.answer);
+      grid.push(val);
     }
   }
+  // shuffle for visual randomness
   grid.sort(() => Math.random()-0.5);
   
   grid.forEach((val, idx) => {
