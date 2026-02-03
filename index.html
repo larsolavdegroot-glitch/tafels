@@ -125,6 +125,21 @@
             <p class="feedback" id="feedback">Start het spel om te oefenen.</p>
           </form>
 
+          <div id="choices" class="choices" hidden>
+            <!-- Drie keuzes voor het 'raak antwoord' spel -->
+            <button class="choice-btn" data-choice="0"></button>
+            <button class="choice-btn" data-choice="1"></button>
+            <button class="choice-btn" data-choice="2"></button>
+          </div>
+
+          <div id="tetris-area" class="tetris-area" hidden>
+            <div class="tetris-stack" id="tetris-stack" aria-live="polite"></div>
+            <div class="tetris-controls">
+              <button id="drop-block" class="primary">Laat blok vallen</button>
+              <p id="tetris-count">0 / 20</p>
+            </div>
+          </div>
+
           <div class="progress">
             <div class="progress-bar" id="progress-bar"></div>
           </div>
