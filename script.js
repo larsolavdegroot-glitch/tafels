@@ -55,11 +55,28 @@ function tetrisDraw() {
   if(tetrisPlayer.matrix) drawMatrix(tetrisPlayer.matrix, tetrisPlayer.pos, tetrisCanvas, ctx);
 }
 
-function merge(a, p) { p.matrix.forEach((row,y) => row.forEach((v,x) => { if(v) a[y+p.pos.y][x+p.pos.x] = v; })); }
+function merge(a, p) { 
+  p.matrix.forEach((row,y) => {
+    row.forEach((v,x) => { 
+      if(v && a[y+p.pos.y] && a[y+p.pos.y][x+p.pos.x] !== undefined) {
+        a[y+p.pos.y][x+p.pos.x] = v;
+      }
+    });
+  });
+}
 function collide(a, p) {
   const m = p.matrix;
-  for(let y=0;y<m.length;y++) for(let x=0;x<m[y].length;x++) 
-    if(m[y][x] && (!a[y+p.pos.y] || a[y+p.pos.y][x+p.pos.x]) !== 0) return true;
+  for(let y=0;y<m.length;y++) {
+    for(let x=0;x<m[y].length;x++) {
+      if(m[y][x]) {
+        const newY = y + p.pos.y;
+        const newX = x + p.pos.x;
+        if(newY >= a.length || newX < 0 || newX >= a[0].length || (a[newY] && a[newY][newX] !== 0)) {
+          return true;
+        }
+      }
+    }
+  }
   return false;
 }
 
