@@ -8,158 +8,115 @@
   </head>
   <body>
     <div class="app">
-      <header class="site-header">
-        <div>
-          <p class="eyebrow">TafelQuest</p>
-          <h1>Oefen tafels met games die voelen als Minecraft, Roblox &amp; Super Mario</h1>
-          <p class="intro">
-            Kies een spel, selecteer je tafel en ga op avontuur. Hoe sneller en nauwkeuriger je
-            rekent, hoe meer munten en power-ups je verdient.
-          </p>
+      <header class="site-header ig-style">
+        <div class="brand">
+          <div class="avatar">🎯</div>
+          <div>
+            <h1>TafelQuest — Starter</h1>
+            <p class="sub">Kies een game en oefen tafels op een speelse manier</p>
+          </div>
         </div>
-        <div class="badge-group">
-          <span class="badge">🎮 3 speelstijlen</span>
-          <span class="badge">🧱 Bouw &amp; ontdek</span>
-          <span class="badge">⭐ Power-ups</span>
-        </div>
+        <nav class="games-nav">
+          <button class="game-card active" data-game="game1">🎮 Tetris</button>
+          <button class="game-card" data-game="game2">🏃 Runner</button>
+          <button class="game-card" data-game="game3">🧮 Raster</button>
+        </nav>
       </header>
 
       <main>
-        <section class="game-select" aria-labelledby="spel-kiezen">
-          <h2 id="spel-kiezen">Kies je spelwereld</h2>
-          <div class="cards">
-            <button class="card" data-mode="bouw">
-              <div class="card-header">
-                <span class="card-tag">Minecraft vibe</span>
-                <h3>Bouw &amp; Blok</h3>
-              </div>
-              <p>
-                Verzamel blokken door juiste antwoorden te geven. Maak een fort terwijl je tafels
-                oefent.
-              </p>
-            </button>
-            <button class="card" data-mode="obby">
-              <div class="card-header">
-                <span class="card-tag">Roblox vibe</span>
-                <h3>Obby Runner</h3>
-              </div>
-              <p>Spring over obstakels door snelle sommen. Hou je streak vast!</p>
-            </button>
-            <button class="card" data-mode="power">
-              <div class="card-header">
-                <span class="card-tag">Super Mario vibe</span>
-                <h3>Power-Up Parade</h3>
-              </div>
-              <p>Verdien sterren en power-ups met perfecte antwoorden.</p>
-            </button>
-          </div>
+        <section id="starter" class="starter">
+          <h2>Begin hier</h2>
+          <p>Klik op één van de games hierboven om te starten. We beginnen met Game 1 (Tetris).</p>
         </section>
 
-        <section class="controls" aria-labelledby="tafel-kiezen">
-          <h2 id="tafel-kiezen">Kies je tafel</h2>
-          <div class="control-row">
-            <label for="table-select">Tafel</label>
-            <select id="table-select">
-              <option value="mixed">Mix (1-12)</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10</option>
-              <option value="11">11</option>
-              <option value="12">12</option>
-            </select>
-          </div>
-          <div class="control-row">
-            <label for="level-select">Niveau</label>
-            <select id="level-select">
-              <option value="easy">Relaxed</option>
-              <option value="normal" selected>Challenge</option>
-              <option value="hard">Turbo</option>
-            </select>
-          </div>
-          <button class="primary" id="start-game">Start spel</button>
-        </section>
-
-        <section class="game" aria-live="polite">
-          <div class="game-header">
-            <div>
-              <p class="mode-label" id="mode-label">Kies een spel om te starten</p>
-              <h2 id="question">Je som verschijnt hier ✨</h2>
+        <section id="game-area" class="game-area">
+          <!-- Game 1: Tetris canvas and HUD -->
+          <div id="game1" class="game-pane">
+            <div class="hud">
+              <div class="hud-left">
+                <div class="stat">Score: <span id="t-score">0</span></div>
+                <div class="stat">Level: <span id="t-level">1</span></div>
+              </div>
+              <div class="hud-right">
+                <button id="t-start" class="primary">Start</button>
+                <button id="t-pause" class="secondary">Pause</button>
+              </div>
             </div>
-            <div class="stats">
-              <div class="stat">
-                <span>Score</span>
-                <strong id="score">0</strong>
-              </div>
-              <div class="stat">
-                <span>Streak</span>
-                <strong id="streak">0</strong>
-              </div>
-              <div class="stat">
-                <span>Levens</span>
-                <strong id="lives">3</strong>
+
+            <div class="tetris-wrap">
+              <canvas id="tetris" width="220" height="440"></canvas>
+              <aside class="next-wrap">
+                <h3>Next</h3>
+                <canvas id="next" width="60" height="60"></canvas>
+              </aside>
+            </div>
+
+            <div id="question-modal" class="modal" hidden>
+              <div class="modal-card">
+                <h3>Reken som!</h3>
+                <p id="q-text">8 × 7 = ?</p>
+                <input id="q-answer" type="number" />
+                <div class="modal-actions">
+                  <button id="q-submit" class="primary">Check</button>
+                  <button id="q-skip" class="secondary">Sla over</button>
+                </div>
+                <p class="hint">Goed antwoord geeft punten. Fout versnelt vallen.</p>
               </div>
             </div>
           </div>
 
-          <form id="answer-form" class="answer-form">
-            <label for="answer">Antwoord</label>
-            <div class="answer-row">
-              <input
-                id="answer"
-                name="answer"
-                type="number"
-                inputmode="numeric"
-                placeholder="Typ je antwoord"
-                autocomplete="off"
-                required
-              />
-              <button class="primary" type="submit">Check</button>
+          <!-- Game 2: Runner -->
+          <div id="game2" class="game-pane" hidden>
+            <div class="hud">
+              <div class="hud-left">
+                <div class="stat">Score: <span id="r-score">0</span></div>
+                <div class="stat">Distance: <span id="r-dist">0</span>m</div>
+              </div>
+              <div class="hud-right">
+                <button id="r-start" class="primary">Start</button>
+              </div>
             </div>
-            <p class="feedback" id="feedback">Start het spel om te oefenen.</p>
-          </form>
-
-          <div id="choices" class="choices" hidden>
-            <!-- Drie keuzes voor het 'raak antwoord' spel -->
-            <button class="choice-btn" data-choice="0"></button>
-            <button class="choice-btn" data-choice="1"></button>
-            <button class="choice-btn" data-choice="2"></button>
-          </div>
-
-          <div id="tetris-area" class="tetris-area" hidden>
-            <div class="tetris-stack" id="tetris-stack" aria-live="polite"></div>
-            <div class="tetris-controls">
-              <button id="drop-block" class="primary">Laat blok vallen</button>
-              <p id="tetris-count">0 / 20</p>
+            <canvas id="runner" width="400" height="400"></canvas>
+            <div id="r-question-modal" class="modal" hidden>
+              <div class="modal-card">
+                <h3>Vraag!</h3>
+                <p id="r-q-text">Wat is 6 × 7?</p>
+                <div class="choice-grid r-choices"></div>
+                <div class="modal-actions">
+                  <button id="r-q-skip" class="secondary">Sla over</button>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="progress">
-            <div class="progress-bar" id="progress-bar"></div>
+          <!-- Game 3: Raster -->
+          <div id="game3" class="game-pane" hidden>
+            <div class="hud">
+              <div class="hud-left">
+                <div class="stat">Score: <span id="ra-score">0</span></div>
+                <div class="stat">Correct: <span id="ra-correct">0</span>/10</div>
+              </div>
+              <div class="hud-right">
+                <button id="ra-start" class="primary">Start</button>
+              </div>
+            </div>
+            <div class="raster-area">
+              <div class="raster-question">
+                <h3>Wat is het antwoord?</h3>
+                <p id="ra-answer-text">42</p>
+              </div>
+              <div class="raster-grid" id="raster-grid"></div>
+            </div>
+            <p class="raster-hint">Tik op het juiste tafelproduct in het raster.</p>
           </div>
-        </section>
-
-        <section class="tips" aria-labelledby="tips-heading">
-          <h2 id="tips-heading">Bonus tips</h2>
-          <ul>
-            <li>Gebruik een paper of blokken om je berekeningen visueel te maken.</li>
-            <li>Houd je streak in stand voor extra munten.</li>
-            <li>Daag jezelf uit met de turbo-stand voor echte speedruns.</li>
-          </ul>
         </section>
       </main>
 
-      <footer class="site-footer">
-        <p>Gebouwd voor tafel-avonturiers. Veel speelplezier!</p>
+      <footer class="site-footer ig-style">
+        <p>Maak het speelvol — veel succes!</p>
       </footer>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
   </body>
 </html>

@@ -1,336 +1,350 @@
-const modeCards = document.querySelectorAll(".card");
-const modeLabel = document.getElementById("mode-label");
-const questionEl = document.getElementById("question");
-const scoreEl = document.getElementById("score");
-const streakEl = document.getElementById("streak");
-const livesEl = document.getElementById("lives");
-const feedbackEl = document.getElementById("feedback");
-const progressBar = document.getElementById("progress-bar");
-const answerForm = document.getElementById("answer-form");
-const answerInput = document.getElementById("answer");
-const startButton = document.getElementById("start-game");
-const tableSelect = document.getElementById("table-select");
-const levelSelect = document.getElementById("level-select");
-const choicesEl = document.getElementById("choices");
-const choiceButtons = document.querySelectorAll(".choice-btn");
-const tetrisArea = document.getElementById("tetris-area");
-const tetrisStack = document.getElementById("tetris-stack");
-const dropBlockBtn = document.getElementById("drop-block");
-const tetrisCount = document.getElementById("tetris-count");
-
-const bodyEl = document.body;
-
-const modes = {
-  bouw: {
-    label: "Bouw & Blok · Minecraft vibe",
-    success: "Nice! Je krijgt een nieuw blok voor je fort 🧱",
-    fail: "Oeps! Een blok brokkelde af. Probeer opnieuw!",
-  },
-  obby: {
-    label: "Obby Runner · Roblox vibe",
-    success: "Top! Je springt perfect naar het volgende platform 🤸",
-    fail: "Ai! Je mist de sprong. Focus op je volgende som!",
-  },
-  power: {
-    label: "Power-Up Parade · Super Mario vibe",
-    success: "Yes! Je pakt een ster en scoort extra punten ⭐",
-    fail: "Boe! De Goomba lacht. Pak snel je volgende power-up!",
-  },
-};
-
-let activeMode = null;
-let currentQuestion = null;
-let score = 0;
-let streak = 0;
-let lives = 3;
-let progress = 0;
-let gameState = {
-  // For obby (chase)
-  chaseInterval: null,
-  chaseRemaining: 0,
-  chaseDuration: 0,
-  // For tetris
-  tetrisTotal: 20,
-  tetrisCollected: 0,
-  tetrisPreview: null,
-};
-
-const levelSettings = {
-  easy: { multiplier: 1, max: 5 },
-  normal: { multiplier: 2, max: 8 },
-  hard: { multiplier: 3, max: 12 },
-};
-
-const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-const pickQuestion = () => {
-  const tableValue = tableSelect.value;
-  const maxValue = levelSettings[levelSelect.value].max;
-
-  if (tableValue === "mixed") {
-    const left = randomInt(1, 12);
-    const right = randomInt(1, maxValue);
-    return { left, right };
-  }
-
-  const left = Number(tableValue);
-  const right = randomInt(1, maxValue);
-  return { left, right };
-};
-
-const updateQuestionUI = () => {
-  if (!currentQuestion) {
-    questionEl.textContent = "Je som verschijnt hier ✨";
-    return;
-  }
-  questionEl.textContent = `${currentQuestion.left} × ${currentQuestion.right} = ?`;
-};
-
-const updateStats = () => {
-  scoreEl.textContent = score;
-  streakEl.textContent = streak;
-  livesEl.textContent = lives;
-  progressBar.style.width = `${Math.min(progress, 100)}%`;
-};
-
-const setFeedback = (message, type) => {
-  feedbackEl.textContent = message;
-  feedbackEl.classList.remove("good", "bad");
-  if (type) {
-    feedbackEl.classList.add(type);
-  }
-};
-
-const startGame = () => {
-  if (!activeMode) {
-    setFeedback("Kies eerst een spelwereld om te starten.", "bad");
-    return;
-  }
-  score = 0;
-  streak = 0;
-  lives = 3;
-  progress = 0;
-  currentQuestion = pickQuestion();
-  updateQuestionUI();
-  updateStats();
-  setFeedback("Game on! Beantwoord de som om te beginnen.", "good");
-  answerInput.focus();
-
-  // Mode specific initialisation
-  if (activeMode === "obby") {
-    // chase timer based on level
-    const base = { easy: 10, normal: 7, hard: 5 }[levelSelect.value] || 7;
-    gameState.chaseDuration = base * 1000;
-    startChaseTimer();
-  } else {
-    stopChaseTimer();
-  }
-
-  if (activeMode === "bouw") {
-    gameState.tetrisCollected = 0;
-    tetrisStack.innerHTML = "";
-    tetrisCount.textContent = `${gameState.tetrisCollected} / ${gameState.tetrisTotal}`;
-    tetrisArea.hidden = false;
-    choicesEl.hidden = true;
-  }
-
-  if (activeMode === "power") {
-    // show multiple choice
-    choicesEl.hidden = false;
-    tetrisArea.hidden = true;
-    generateChoicesForCurrentQuestion();
-  }
-};
-
-const handleAnswer = (event) => {
-  event.preventDefault();
-  if (!currentQuestion) {
-    setFeedback("Klik op start om een som te krijgen.", "bad");
-    return;
-  }
-
-  const userAnswer = Number(answerInput.value);
-  const correctAnswer = currentQuestion.left * currentQuestion.right;
-  const { multiplier } = levelSettings[levelSelect.value];
-
-  if (userAnswer === correctAnswer) {
-    score += 10 * multiplier + streak;
-    streak += 1;
-    progress += 12;
-    setFeedback(modes[activeMode].success, "good");
-    // mode-specific success
-    if (activeMode === "obby") {
-      // reset chase
-      resetChaseTimer();
-    }
-    if (activeMode === "bouw") {
-      grantTetrisPreview();
-    }
-  } else {
-    lives -= 1;
-    streak = 0;
-    progress = Math.max(progress - 8, 0);
-    setFeedback(`${modes[activeMode].fail} Het juiste antwoord is ${correctAnswer}.`, "bad");
-  }
-
-  if (lives <= 0) {
-    setFeedback("Game over! Klik op start om opnieuw te spelen.", "bad");
-    currentQuestion = null;
-    stopChaseTimer();
-  } else {
-    currentQuestion = pickQuestion();
-    if (activeMode === "power") generateChoicesForCurrentQuestion();
-  }
-
-  updateQuestionUI();
-  updateStats();
-  answerForm.reset();
-};
-
-/* Theme helper */
-const applyThemeForMode = (mode) => {
-  bodyEl.classList.remove("theme-blue", "theme-green", "theme-red");
-  if (mode === "obby") bodyEl.classList.add("theme-blue");
-  if (mode === "bouw") bodyEl.classList.add("theme-green");
-  if (mode === "power") bodyEl.classList.add("theme-red");
-};
-
-/* Chase timer (obby) */
-const startChaseTimer = () => {
-  stopChaseTimer();
-  gameState.chaseRemaining = gameState.chaseDuration;
-  const start = Date.now();
-  gameState.chaseInterval = setInterval(() => {
-    const elapsed = Date.now() - start;
-    gameState.chaseRemaining = Math.max(gameState.chaseDuration - elapsed, 0);
-    const pct = 100 - Math.round((gameState.chaseRemaining / gameState.chaseDuration) * 100);
-    progressBar.style.width = `${pct}%`;
-    if (gameState.chaseRemaining <= 0) {
-      // chased down
-      lives -= 1;
-      streak = 0;
-      setFeedback('Je bent ingehaald! Los de volgende som snel op.', 'bad');
-      updateStats();
-      currentQuestion = pickQuestion();
-      updateQuestionUI();
-      // restart timer if still alive
-      if (lives > 0) startChaseTimer(); else stopChaseTimer();
-    }
-  }, 150);
-};
-
-const resetChaseTimer = () => {
-  startChaseTimer();
-};
-
-const stopChaseTimer = () => {
-  if (gameState.chaseInterval) {
-    clearInterval(gameState.chaseInterval);
-    gameState.chaseInterval = null;
-  }
-  progressBar.style.width = `${Math.min(progress, 100)}%`;
-};
-
-/* Tetris helpers */
-const grantTetrisPreview = () => {
-  // create a preview block the player can drop
-  if (gameState.tetrisPreview) return; // already have preview
-  const div = document.createElement('div');
-  div.className = 'block';
-  div.style.width = '100%';
-  div.style.background = `linear-gradient(90deg, var(--accent), var(--accent-dark))`;
-  div.style.opacity = '0.95';
-  div.style.border = '1px solid rgba(0,0,0,0.15)';
-  div.id = 'preview-block';
-  tetrisArea.insertBefore(div, tetrisStack);
-  gameState.tetrisPreview = div;
-};
-
-dropBlockBtn.addEventListener('click', () => {
-  if (!gameState.tetrisPreview) return;
-  // move preview into stack
-  const preview = gameState.tetrisPreview;
-  preview.removeAttribute('id');
-  tetrisStack.appendChild(preview);
-  gameState.tetrisPreview = null;
-  gameState.tetrisCollected += 1;
-  tetrisCount.textContent = `${gameState.tetrisCollected} / ${gameState.tetrisTotal}`;
-  // award score
-  score += 15;
-  updateStats();
-});
-
-/* Multiple choice (power) */
-const generateChoicesForCurrentQuestion = () => {
-  if (!currentQuestion) return;
-  const correct = currentQuestion.left * currentQuestion.right;
-  const choices = new Set([correct]);
-  while (choices.size < 3) {
-    let delta = Math.floor((Math.random() * 5) + 1);
-    if (Math.random() < 0.5) delta *= -1;
-    choices.add(Math.max(1, correct + delta));
-  }
-  const arr = Array.from(choices).sort(() => Math.random() - 0.5);
-  choiceButtons.forEach((btn, i) => {
-    btn.textContent = arr[i];
-    btn.dataset.value = arr[i];
-  });
-};
-
-choiceButtons.forEach((btn) => {
-  btn.addEventListener('click', (e) => {
-    if (!currentQuestion) return;
-    const picked = Number(btn.dataset.value);
-    const correct = currentQuestion.left * currentQuestion.right;
-    if (picked === correct) {
-      score += 12;
-      streak += 1;
-      setFeedback(modes[activeMode].success, 'good');
-    } else {
-      lives -= 1;
-      streak = 0;
-      setFeedback(modes[activeMode].fail + ' Probeer het volgende antwoord.', 'bad');
-    }
-    if (lives <= 0) {
-      setFeedback('Game over! Klik op start om opnieuw te spelen.', 'bad');
-      currentQuestion = null;
-    } else {
-      currentQuestion = pickQuestion();
-      generateChoicesForCurrentQuestion();
-    }
-    updateQuestionUI();
-    updateStats();
+/* === GAME MANAGER & SHARED LOGIC === */
+let currentGame = 'game1';
+document.querySelectorAll('.game-card').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.game-card').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentGame = btn.dataset.game;
+    document.querySelectorAll('.game-pane').forEach(pane => pane.hidden = true);
+    document.getElementById(currentGame).hidden = false;
   });
 });
 
-modeCards.forEach((card) => {
-  card.addEventListener("click", () => {
-    modeCards.forEach((button) => button.classList.remove("active"));
-    card.classList.add("active");
-    activeMode = card.dataset.mode;
-    modeLabel.textContent = modes[activeMode].label;
-    setFeedback("Klaar! Kies je tafel en druk op start.", "good");
-    applyThemeForMode(activeMode);
+function rand(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
 
-    // UI: show/hide input vs choices vs tetris
-    if (activeMode === 'power') {
-      choicesEl.hidden = false;
-      answerForm.hidden = true;
-      tetrisArea.hidden = true;
-    } else if (activeMode === 'bouw') {
-      choicesEl.hidden = true;
-      answerForm.hidden = false;
-      tetrisArea.hidden = false;
-    } else {
-      // obby or others
-      choicesEl.hidden = true;
-      answerForm.hidden = false;
-      tetrisArea.hidden = true;
+/* === GAME 1: TETRIS WITH MATH QUESTIONS === */
+const tetrisCanvas = document.getElementById('tetris');
+const nextCanvas = document.getElementById('next');
+const ctx = tetrisCanvas.getContext('2d');
+const nctx = nextCanvas.getContext('2d');
+
+const COLS = 10, ROWS = 20, BLOCK = 22;
+tetrisCanvas.width = COLS * BLOCK;
+tetrisCanvas.height = ROWS * BLOCK;
+
+let tetrisArena = createMatrix(COLS, ROWS);
+let tetrisPlayer = { pos: {x:0,y:0}, matrix: null };
+let tetrisNext = null;
+let tetrisScore = 0, tetrisLevel = 1, tetrisDropInterval = 800, tetrisDropCounter = 0;
+let tetrisLastTime = 0, tetrisRunning = false, tetrisGameId = null;
+
+const pieces = 'TJLOSZI';
+const colors = ['#a78bfa','#60a5fa','#fb7185','#fbbf24','#34d399','#f97316','#06b6d4'];
+
+function createMatrix(w,h) {
+  const m = []; while(h--) m.push(new Array(w).fill(0)); return m;
+}
+
+function createPiece(t) {
+  const map = {T:[[0,1,0],[1,1,1],[0,0,0]],O:[[2,2],[2,2]],L:[[0,0,3],[3,3,3],[0,0,0]],J:[[4,0,0],[4,4,4],[0,0,0]],I:[[0,5,0,0],[0,5,0,0],[0,5,0,0],[0,5,0,0]],S:[[0,6,6],[6,6,0],[0,0,0]],Z:[[7,7,0],[0,7,7],[0,0,0]]};
+  return map[t];
+}
+
+function drawMatrix(matrix, offset, canvas, ctxDraw) {
+  matrix.forEach((row,y) => row.forEach((v,x) => {
+    if(v) {
+      ctxDraw.fillStyle = colors[v-1] || '#999';
+      ctxDraw.fillRect((x+offset.x)*BLOCK, (y+offset.y)*BLOCK, BLOCK-1, BLOCK-1);
     }
-  });
+  }));
+}
+
+function tetrisDraw() {
+  ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0,0,tetrisCanvas.width,tetrisCanvas.height);
+  drawMatrix(tetrisArena, {x:0,y:0}, tetrisCanvas, ctx);
+  if(tetrisPlayer.matrix) drawMatrix(tetrisPlayer.matrix, tetrisPlayer.pos, tetrisCanvas, ctx);
+}
+
+function merge(a, p) { p.matrix.forEach((row,y) => row.forEach((v,x) => { if(v) a[y+p.pos.y][x+p.pos.x] = v; })); }
+function collide(a, p) {
+  const m = p.matrix;
+  for(let y=0;y<m.length;y++) for(let x=0;x<m[y].length;x++) 
+    if(m[y][x] && (!a[y+p.pos.y] || a[y+p.pos.y][x+p.pos.x]) !== 0) return true;
+  return false;
+}
+
+function tetrisPlayerDrop() {
+  tetrisPlayer.pos.y++;
+  if(collide(tetrisArena, tetrisPlayer)) {
+    tetrisPlayer.pos.y--;
+    merge(tetrisArena, tetrisPlayer);
+    tetrisPlayerReset();
+    const cleared = tetrisArenaSweep();
+    if(cleared > 0) tetrisOnLineClear(cleared);
+    tetrisUpdateHUD();
+  }
+  tetrisDropCounter = 0;
+}
+
+function tetrisPlayerMove(dir) {
+  tetrisPlayer.pos.x += dir;
+  if(collide(tetrisArena, tetrisPlayer)) tetrisPlayer.pos.x -= dir;
+}
+
+function tetrisRotate(m, d) {
+  for(let y=0;y<m.length;y++) for(let x=0;x<y;x++) [m[x][y], m[y][x]] = [m[y][x], m[x][y]];
+  if(d>0) m.forEach(row => row.reverse()); else m.reverse();
+}
+
+function tetrisPlayerRotate(d) {
+  tetrisRotate(tetrisPlayer.matrix, d);
+  let o = 1;
+  while(collide(tetrisArena, tetrisPlayer)) {
+    tetrisPlayer.pos.x += o;
+    o = -(o + (o>0?1:-1));
+    if(o > tetrisPlayer.matrix[0].length) { tetrisRotate(tetrisPlayer.matrix, -d); return; }
+  }
+}
+
+function tetrisPlayerReset() {
+  if(!tetrisNext) tetrisNext = createPiece(pieces[rand(0,pieces.length-1)]);
+  tetrisPlayer.matrix = tetrisNext;
+  tetrisNext = createPiece(pieces[rand(0,pieces.length-1)]);
+  tetrisPlayer.pos.y = 0; tetrisPlayer.pos.x = Math.floor((COLS - tetrisPlayer.matrix[0].length)/2);
+  if(collide(tetrisArena, tetrisPlayer)) {
+    tetrisArena = createMatrix(COLS, ROWS);
+    tetrisScore = 0; tetrisLevel = 1; tetrisRunning = false;
+    alert('Game Over — nieuw spel');
+  }
+  tetrisDrawNext();
+}
+
+function tetrisDrawNext() {
+  nctx.fillStyle = '#111'; nctx.fillRect(0,0,nextCanvas.width,nextCanvas.height);
+  if(tetrisNext) drawMatrix(tetrisNext, {x:0,y:0}, nextCanvas, nctx);
+}
+
+function tetrisArenaSweep() {
+  let cnt = 0;
+  outer: for(let y=ROWS-1;y>=0;y--) {
+    for(let x=0;x<COLS;x++) if(tetrisArena[y][x]===0) continue outer;
+    const row = tetrisArena.splice(y,1)[0].fill(0);
+    tetrisArena.unshift(row);
+    y++; cnt++;
+  }
+  if(cnt>0) tetrisScore += cnt * 100;
+  return cnt;
+}
+
+function tetrisUpdateHUD() {
+  document.getElementById('t-score').textContent = tetrisScore;
+  document.getElementById('t-level').textContent = tetrisLevel;
+}
+
+function tetrisOnLineClear(cnt) {
+  tetrisPauseLoop();
+  const a = rand(2,9), b = rand(2,9);
+  document.getElementById('q-text').textContent = `${a} × ${b} = ?`;
+  document.getElementById('q-answer').value = '';
+  document.getElementById('question-modal').hidden = false;
+  document.getElementById('q-submit').dataset.correct = a*b;
+  document.getElementById('q-submit').dataset.lines = cnt;
+}
+
+document.getElementById('q-submit').addEventListener('click', () => {
+  const correct = Number(document.getElementById('q-submit').dataset.correct);
+  const answer = Number(document.getElementById('q-answer').value);
+  const lines = Number(document.getElementById('q-submit').dataset.lines) || 1;
+  document.getElementById('question-modal').hidden = true;
+  if(answer === correct) {
+    tetrisScore += lines * 200;
+    tetrisLevel = Math.min(10, tetrisLevel + Math.floor(lines/1));
+    tetrisDropInterval = Math.max(100, tetrisDropInterval - (tetrisLevel*20));
+  } else {
+    tetrisDropInterval = Math.max(80, Math.floor(tetrisDropInterval * 0.7));
+  }
+  tetrisUpdateHUD();
+  tetrisResumeLoop();
 });
 
-startButton.addEventListener("click", startGame);
-answerForm.addEventListener("submit", handleAnswer);
+document.getElementById('q-skip').addEventListener('click', () => {
+  document.getElementById('question-modal').hidden = true;
+  tetrisDropInterval = Math.max(80, Math.floor(tetrisDropInterval * 0.8));
+  tetrisResumeLoop();
+});
 
-updateStats();
+function tetrisUpdate(t=0) {
+  if(!tetrisRunning) return;
+  const delta = t - tetrisLastTime; tetrisLastTime = t;
+  tetrisDropCounter += delta;
+  if(tetrisDropCounter > tetrisDropInterval) {
+    tetrisPlayerDrop();
+  }
+  tetrisDraw();
+  tetrisGameId = requestAnimationFrame(tetrisUpdate);
+}
+
+function tetrisStartLoop() { if(!tetrisRunning) { tetrisRunning=true; tetrisLastTime=0; tetrisDropCounter=0; tetrisGameId = requestAnimationFrame(tetrisUpdate); } }
+function tetrisPauseLoop() { tetrisRunning=false; if(tetrisGameId) cancelAnimationFrame(tetrisGameId); }
+function tetrisResumeLoop() { if(!tetrisRunning) { tetrisRunning=true; tetrisLastTime=0; tetrisGameId=requestAnimationFrame(tetrisUpdate); } }
+
+document.addEventListener('keydown',(e) => {
+  if(currentGame !== 'game1' || !tetrisRunning) return;
+  if(e.key === 'ArrowLeft') tetrisPlayerMove(-1);
+  if(e.key === 'ArrowRight') tetrisPlayerMove(1);
+  if(e.key === 'ArrowDown') tetrisPlayerDrop();
+  if(e.key === 'ArrowUp') tetrisPlayerRotate(1);
+  if(e.key === ' ') { while(!collide(tetrisArena, tetrisPlayer)) tetrisPlayer.pos.y++; tetrisPlayer.pos.y--; merge(tetrisArena, tetrisPlayer); tetrisPlayerReset(); tetrisArenaSweep(); tetrisUpdateHUD(); }
+  tetrisDraw();
+});
+
+document.getElementById('t-start').addEventListener('click', () => {
+  tetrisArena = createMatrix(COLS, ROWS); tetrisScore=0; tetrisLevel=1; tetrisDropInterval=800; tetrisNext=null; tetrisPlayerReset(); tetrisStartLoop(); tetrisUpdateHUD();
+});
+document.getElementById('t-pause').addEventListener('click', () => { if(tetrisRunning) tetrisPauseLoop(); else tetrisResumeLoop(); });
+
+tetrisPlayerReset(); tetrisDraw(); tetrisDrawNext(); tetrisUpdateHUD();
+
+/* === GAME 2: RUNNER (SUBWAY SURFER STYLE) === */
+const runnerCanvas = document.getElementById('runner');
+const rctx = runnerCanvas.getContext('2d');
+runnerCanvas.width = 400;
+runnerCanvas.height = 400;
+
+let runnerPlayer = {x: 150, y: 300, w: 30, h: 40};
+let runnerObstacles = [];
+let runnerScore = 0, runnerDistance = 0, runnerSpeed = 2, runnerGameRunning = false, runnerGameId = null;
+let runnerQuestionActive = false, runnerCurrentAnswer = 0, runnerChoices = [];
+
+function runnerUpdate() {
+  if(!runnerGameRunning) return;
+  rctx.fillStyle = '#1a1a2e'; rctx.fillRect(0,0,runnerCanvas.width,runnerCanvas.height);
+  
+  // Draw road
+  rctx.fillStyle = '#2d4059'; rctx.fillRect(0, 200, runnerCanvas.width, 200);
+  rctx.fillStyle = '#444'; rctx.strokeStyle = '#fff'; rctx.lineWidth = 2;
+  for(let i=0;i<5;i++) rctx.strokeRect(80 + i*80, runnerDistance%50, 60, 30);
+  
+  // Player
+  rctx.fillStyle = '#ff6b6b'; rctx.fillRect(runnerPlayer.x, runnerPlayer.y, runnerPlayer.w, runnerPlayer.h);
+  
+  // Obstacles
+  runnerObstacles.forEach(obs => {
+    obs.y += runnerSpeed;
+    rctx.fillStyle = obs.type==='tree' ? '#27ae60' : '#8b4513';
+    rctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+    if(obs.y > runnerCanvas.height) runnerObstacles.shift();
+  });
+  
+  // Spawn obstacles
+  if(rand(0,100) < 3) runnerObstacles.push({x: rand(80, 320), y: -40, w: 30, h: 40, type: rand(0,2)?'tree':'rock'});
+  
+  // Collision
+  runnerObstacles.forEach(obs => {
+    if(runnerPlayer.x < obs.x + obs.w && runnerPlayer.x + runnerPlayer.w > obs.x && runnerPlayer.y < obs.y + obs.h && runnerPlayer.y + runnerPlayer.h > obs.y) {
+      runnerQuestionActive = true; runnerGameRunning = false;
+      runnerShowQuestion();
+    }
+  });
+  
+  runnerDistance += 1;
+  document.getElementById('r-score').textContent = runnerScore;
+  document.getElementById('r-dist').textContent = Math.floor(runnerDistance/10);
+  
+  runnerGameId = requestAnimationFrame(runnerUpdate);
+}
+
+function runnerShowQuestion() {
+  const a = rand(2,9), b = rand(2,9), correct = a*b;
+  runnerCurrentAnswer = correct;
+  document.getElementById('r-q-text').textContent = `${a} × ${b} = ?`;
+  
+  runnerChoices = [correct, rand(1,144), rand(1,144)].sort(() => Math.random()-0.5);
+  const choicesDiv = document.querySelector('.r-choices');
+  choicesDiv.innerHTML = '';
+  runnerChoices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.textContent = c;
+    btn.addEventListener('click', () => {
+      if(c === correct) {
+        runnerScore += 50;
+        document.getElementById('r-score').textContent = runnerScore;
+      }
+      document.getElementById('r-question-modal').hidden = true;
+      runnerGameRunning = true;
+      runnerUpdate();
+    });
+    choicesDiv.appendChild(btn);
+  });
+  document.getElementById('r-question-modal').hidden = false;
+}
+
+document.addEventListener('keydown', (e) => {
+  if(currentGame !== 'game2' || !runnerGameRunning) return;
+  if(e.key === 'ArrowLeft') runnerPlayer.x = Math.max(80, runnerPlayer.x - 20);
+  if(e.key === 'ArrowRight') runnerPlayer.x = Math.min(runnerCanvas.width - 110, runnerPlayer.x + 20);
+});
+
+document.getElementById('r-start').addEventListener('click', () => {
+  runnerPlayer = {x: 150, y: 300, w: 30, h: 40};
+  runnerObstacles = [];
+  runnerScore = 0; runnerDistance = 0; runnerSpeed = 2;
+  runnerGameRunning = true;
+  runnerUpdate();
+});
+
+document.getElementById('r-q-skip').addEventListener('click', () => {
+  document.getElementById('r-question-modal').hidden = true;
+  runnerGameRunning = true;
+  runnerUpdate();
+});
+
+/* === GAME 3: RASTER (MULTIPLICATION TABLE GRID) === */
+let rasterScore = 0, rasterCorrect = 0, rasterTotal = 10, rasterCurrent = 0;
+let rasterQuestions = [];
+
+function generateRasterQuestions() {
+  rasterQuestions = [];
+  for(let i=0;i<rasterTotal;i++) {
+    const a = rand(2,12), b = rand(2,12);
+    rasterQuestions.push({a,b,answer: a*b});
+  }
+}
+
+function displayRasterQuestion() {
+  if(rasterCurrent >= rasterTotal) {
+    alert(`Klaar! Score: ${rasterScore}`);
+    rasterScore = 0; rasterCorrect = 0; rasterCurrent = 0;
+    return;
+  }
+  const q = rasterQuestions[rasterCurrent];
+  document.getElementById('ra-answer-text').textContent = q.answer;
+  
+  // Create grid with random table values
+  const gridDiv = document.getElementById('raster-grid');
+  gridDiv.innerHTML = '';
+  const grid = [];
+  for(let i=0;i<25;i++) {
+    if(i === rand(0,24)) {
+      grid.push(q.answer);
+    } else {
+      grid.push(rand(2,12) * rand(2,12));
+    }
+  }
+  grid.sort(() => Math.random()-0.5);
+  
+  grid.forEach((val, idx) => {
+    const cell = document.createElement('div');
+    cell.className = 'raster-cell';
+    cell.textContent = val;
+    cell.addEventListener('click', () => {
+      if(val === q.answer) {
+        cell.classList.add('correct');
+        rasterScore += 10;
+        rasterCorrect += 1;
+        setTimeout(() => { rasterCurrent++; displayRasterQuestion(); }, 500);
+      } else {
+        cell.classList.add('wrong');
+      }
+    });
+    gridDiv.appendChild(cell);
+  });
+}
+
+document.getElementById('ra-start').addEventListener('click', () => {
+  rasterScore = 0; rasterCorrect = 0; rasterCurrent = 0;
+  generateRasterQuestions();
+  document.getElementById('ra-score').textContent = rasterScore;
+  document.getElementById('ra-correct').textContent = `${rasterCorrect}/${rasterTotal}`;
+  displayRasterQuestion();
+});
