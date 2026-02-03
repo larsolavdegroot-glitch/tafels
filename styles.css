@@ -353,3 +353,15 @@ canvas {
   background: #34d399;
   color: #111;
 }
+
+/* ensure hidden attribute actually hides the modal (author CSS may override UA rule) */
+.modal[hidden] { display: none !important; }
+
+/* constrain tetris area so it fits on most screens */
+.tetris-wrap { max-width: 640px; margin: 0 auto; }
+.tetris-wrap canvas { max-width: 100%; height: auto; }
+
+@media (max-width: 720px) {
+  .tetris-wrap { flex-direction: column; align-items: center; padding: 8px; }
+  .next-wrap { width: 100%; display: flex; justify-content: center; }
+}
