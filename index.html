@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TafelQuest - oefenen met tafels</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="site-header">
+        <div>
+          <p class="eyebrow">TafelQuest</p>
+          <h1>Oefen tafels met games die voelen als Minecraft, Roblox &amp; Super Mario</h1>
+          <p class="intro">
+            Kies een spel, selecteer je tafel en ga op avontuur. Hoe sneller en nauwkeuriger je
+            rekent, hoe meer munten en power-ups je verdient.
+          </p>
+        </div>
+        <div class="badge-group">
+          <span class="badge">🎮 3 speelstijlen</span>
+          <span class="badge">🧱 Bouw &amp; ontdek</span>
+          <span class="badge">⭐ Power-ups</span>
+        </div>
+      </header>
+
+      <main>
+        <section class="game-select" aria-labelledby="spel-kiezen">
+          <h2 id="spel-kiezen">Kies je spelwereld</h2>
+          <div class="cards">
+            <button class="card" data-mode="bouw">
+              <div class="card-header">
+                <span class="card-tag">Minecraft vibe</span>
+                <h3>Bouw &amp; Blok</h3>
+              </div>
+              <p>
+                Race vooruit door je track te bouwen. Goede antwoorden maken je baan langer.
+              </p>
+            </button>
+            <button class="card" data-mode="obby">
+              <div class="card-header">
+                <span class="card-tag">Roblox vibe</span>
+                <h3>Obby Runner</h3>
+              </div>
+              <p>Spring over obstakels door snelle sommen. Hou je streak vast!</p>
+            </button>
+            <button class="card" data-mode="power">
+              <div class="card-header">
+                <span class="card-tag">Super Mario vibe</span>
+                <h3>Power-Up Parade</h3>
+              </div>
+              <p>Bouw platformen en verzamel munten met elke goede sprong.</p>
+            </button>
+          </div>
+        </section>
+
+        <section class="controls" aria-labelledby="tafel-kiezen">
+          <h2 id="tafel-kiezen">Kies je tafel</h2>
+          <div class="control-row">
+            <label for="table-select">Tafel</label>
+            <select id="table-select">
+              <option value="mixed">Mix (1-12)</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+          <div class="control-row">
+            <label for="level-select">Niveau</label>
+            <select id="level-select">
+              <option value="easy">Relaxed</option>
+              <option value="normal" selected>Challenge</option>
+              <option value="hard">Turbo</option>
+            </select>
+          </div>
+          <button class="primary" id="start-game">Start spel</button>
+        </section>
+
+        <section class="game" aria-live="polite">
+          <div class="game-header">
+            <div>
+              <p class="mode-label" id="mode-label">Kies een spel om te starten</p>
+              <h2 id="question">Je som verschijnt hier ✨</h2>
+            </div>
+            <div class="stats">
+              <div class="stat">
+                <span>Score</span>
+                <strong id="score">0</strong>
+              </div>
+              <div class="stat">
+                <span>Streak</span>
+                <strong id="streak">0</strong>
+              </div>
+              <div class="stat">
+                <span>Levens</span>
+                <strong id="lives">3</strong>
+              </div>
+              <div class="stat timer-stat">
+                <span>Tijd</span>
+                <strong id="time-left">--</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="mode-panels">
+            <div class="mode-panel" id="bouw-panel">
+              <h3>Minecraft racebaan</h3>
+              <p>Track tiles geplaatst: <strong id="blocks-count">0</strong></p>
+              <div class="block-grid" id="block-grid" aria-label="Racebaan tiles"></div>
+            </div>
+            <div class="mode-panel" id="obby-panel">
+              <h3>Obby baan</h3>
+              <p>Afstand: <strong id="distance-count">0m</strong></p>
+              <div class="lane">
+                <div class="runner" id="runner" aria-label="Runner positie"></div>
+              </div>
+            </div>
+            <div class="mode-panel" id="power-panel">
+              <h3>Mario platform run</h3>
+              <p>Platformen gebouwd: <strong id="platform-count">0</strong></p>
+              <p>Munten: <strong id="powerups-count">0</strong></p>
+              <div class="platform-row" id="power-row" aria-label="Platformen"></div>
+            </div>
+          </div>
+
+          <form id="answer-form" class="answer-form">
+            <label for="answer">Antwoord</label>
+            <div class="answer-row">
+              <input
+                id="answer"
+                name="answer"
+                type="number"
+                inputmode="numeric"
+                placeholder="Typ je antwoord"
+                autocomplete="off"
+                required
+              />
+              <button class="primary" type="submit">Check</button>
+            </div>
+            <p class="feedback" id="feedback">Start het spel om te oefenen.</p>
+          </form>
+
+          <div class="progress">
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+        </section>
+
+        <section class="tips" aria-labelledby="tips-heading">
+          <h2 id="tips-heading">Bonus tips</h2>
+          <ul>
+            <li>Gebruik een paper of blokken om je berekeningen visueel te maken.</li>
+            <li>Houd je streak in stand voor extra munten.</li>
+            <li>Daag jezelf uit met de turbo-stand voor echte speedruns.</li>
+          </ul>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>Gebouwd voor tafel-avonturiers. Veel speelplezier!</p>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
