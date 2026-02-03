@@ -349,10 +349,13 @@ canvas {
   box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 
-.choice-grid button.selected {
+choice-grid button.selected {
   background: #34d399;
   color: #111;
 }
+
+/* ensure hidden attribute actually hides the modal (author CSS may override UA rule) */
+.modal[hidden] { display: none !important; }
 
 /* small confetti pieces */
 .confetti {
@@ -386,6 +389,15 @@ canvas {
 .raster-cell.correct { animation: pop 420ms ease-out }
 @keyframes pop { 0%{ transform: scale(0.9); } 60%{ transform: scale(1.06); } 100%{ transform: scale(1); } }
 
+/* constrain tetris area so it fits on most screens */
+.tetris-wrap { max-width: 640px; margin: 0 auto; }
+.tetris-wrap canvas { max-width: 100%; height: auto; }
+
 /* Make tetris canvas responsive and fit available space */
 #tetris { max-width: 520px; width: 100%; height: auto; display: block; margin: 0 auto; image-rendering: pixelated }
 #next { max-width: 160px; width: 100%; height: auto; display: block; margin: 8px auto; image-rendering: pixelated }
+
+@media (max-width: 720px) {
+  .tetris-wrap { flex-direction: column; align-items: center; padding: 8px; }
+  .next-wrap { width: 100%; display: flex; justify-content: center; }
+}
