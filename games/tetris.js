@@ -4,9 +4,35 @@ const nextCanvas = document.getElementById('next');
 const ctx = tetrisCanvas.getContext('2d');
 const nctx = nextCanvas.getContext('2d');
 
-const COLS = 10, ROWS = 20, BLOCK = 22;
-tetrisCanvas.width = COLS * BLOCK;
-tetrisCanvas.height = ROWS * BLOCK;
+const COLS = 10, ROWS = 20;
+let BLOCK = 22;
+
+// initial canvas size will be set by resizeTetris()
+function resizeTetris() {
+  const container = document.querySelector('.tetris-wrap') || tetrisCanvas.parentElement;
+  const nextWrap = document.querySelector('.next-wrap');
+  const gap = 12;
+  const containerStyle = container ? window.getComputedStyle(container) : { flexDirection: 'row' };
+  const isColumn = containerStyle.flexDirection === 'column';
+  let availableWidth = container ? container.clientWidth : Math.min(window.innerWidth * 0.9, 520);
+  if (!isColumn && nextWrap) {
+    // subtract next area if side-by-side
+    availableWidth = Math.max(160, availableWidth - (nextWrap.offsetWidth + gap));
+  }
+  const availableHeight = Math.min(550, Math.floor(window.innerHeight * 0.72));
+  BLOCK = Math.max(12, Math.floor(Math.min(availableWidth / COLS, availableHeight / ROWS)));
+  tetrisCanvas.width = COLS * BLOCK;
+  tetrisCanvas.height = ROWS * BLOCK;
+  // make next preview sized relative to BLOCK
+  nextCanvas.width = Math.max(4, (tetrisNext && tetrisNext[0] ? tetrisNext[0].length : 4)) * BLOCK;
+  nextCanvas.height = 4 * BLOCK;
+  // set style width so CSS scaling stays consistent
+  tetrisCanvas.style.width = tetrisCanvas.width + 'px';
+  nextCanvas.style.width = nextCanvas.width + 'px';
+  // redraw to apply new sizing
+  tetrisDraw();
+  tetrisDrawNext();
+}
 
 let tetrisArena = createMatrix(COLS, ROWS);
 let tetrisPlayer = { pos: {x:0,y:0}, matrix: null };
@@ -222,3 +248,9 @@ tetrisPlayerReset(); tetrisDraw(); tetrisDrawNext(); tetrisUpdateHUD();
 
 // ensure modals are hidden on initial load
 if(document.getElementById('question-modal')) document.getElementById('question-modal').hidden = true;
+
+// set responsive sizing and attach resize handler
+resizeTetris();
+window.addEventListener('resize', () => {
+  resizeTetris();
+});

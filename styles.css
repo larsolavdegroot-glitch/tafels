@@ -206,7 +206,7 @@ canvas {
   box-shadow: inset 0 6px 18px rgba(0,0,0,0.6);
   width: 100%;
   height: auto;
-  max-height: 600px;
+  max-height: 550px;
 }
 
 .tetris-wrap {
